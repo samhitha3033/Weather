@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <link rel="stylesheet" href="w.css"> </head>
+<body style="background-image: url('w.jpg'); background-size: cover;">
+    <div class="app-container" >
+        <h1>Welcome to Weather App!</h1>
+        <div id="search-container">
+          <input type="text" id="city-input" placeholder="Enter city name">
+          <br><br>
+          <button id="search-button">Search</button>
+        </div>
+        <div id="weather-display"></div>
+      </div>
+  <script>
+    const apiKey = "25cf7a434741d1f61a3e2f855a5fd2f6";
+    const cityInput = document.getElementById("city-input");
+    const searchButton = document.getElementById("search-button");
+    const weatherDisplay = document.getElementById("weather-display");
+
+    const getWeatherData = (cityInput) => {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&appid=${apiKey}`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          if (data.cod === 200) {
+            displayWeather(data);
+          } else {
+            console.error("Error fetching weather data:", data.message);
+            weatherDisplay.textContent = "Error: City not found.";
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          weatherDisplay.textContent = "Error: Failed to fetch data.";
+        });
+    };
+
+    const displayWeather = (data) => {
+      weatherDisplay.innerHTML = "";
+
+      const cityName = data.name;
+      const temperature = Math.round(data.main.temp - 273.15); 
+      const description = data.weather[0].description;
+      const iconCode = data.weather[0].icon;
+      const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+      const cityHeading = document.createElement("h2");
+      cityHeading.textContent = cityName;
+
+      const temperatureDiv = document.createElement("div");
+      temperatureDiv.textContent = temperature + "°C";
+
+      const descriptionDiv = document.createElement("p");
+      descriptionDiv.textContent = description;
+
+      const iconImg = document.createElement("img");
+      iconImg.src = iconUrl;
+      iconImg.alt = "Weather icon";
+
+      weatherDisplay.appendChild(cityHeading);
+      weatherDisplay.appendChild(temperatureDiv);
+      weatherDisplay.appendChild(descriptionDiv);
+      weatherDisplay.appendChild(iconImg);
+    };
+
+    searchButton.addEventListener("click", () => {
+      const cityName = cityInput.value;
+      if (cityName.trim() !== "") {
+        getWeatherData(cityName);
+        cityInput.value = ""; 
+      } else {
+        alert("Please enter a city name.");
+      }
+    });
+  </script>
+</body>
+</html>
